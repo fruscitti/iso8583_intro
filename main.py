@@ -168,13 +168,19 @@ class BitmapVisualizer(VGroup):
 
 
 # =============================================================================
-# SCENE 0: COLD OPEN
+# SCENE LOGIC - Helper Class (Option 1 Refactoring)
 # =============================================================================
 
-class ColdOpen(Scene):
-    """Cold open with title card (2-3s)."""
+class ISO8583Scenes:
+    """
+    Helper class containing all scene construction logic.
+    Each static method takes a Scene instance and constructs that scene's content.
+    This eliminates code duplication between individual scenes and FullPresentation.
+    """
 
-    def construct(self):
+    @staticmethod
+    def construct_cold_open(scene):
+        """Cold open with title card (2-3s)."""
         # Title
         title = Text("ISO 8583 in 10 Minutes", font_size=60, weight=BOLD)
         title.set_color_by_gradient(COLOR_MTI, COLOR_DATA_ELEMENT)
@@ -184,20 +190,14 @@ class ColdOpen(Scene):
         subtitle.next_to(title, DOWN, buff=0.5)
 
         # Animate
-        self.play(FadeIn(title, shift=DOWN), run_time=1)
-        self.play(FadeIn(subtitle), run_time=0.5)
-        self.wait(1)
-        self.play(FadeOut(title), FadeOut(subtitle))
+        scene.play(FadeIn(title, shift=DOWN), run_time=1)
+        scene.play(FadeIn(subtitle), run_time=0.5)
+        scene.wait(1)
+        scene.play(FadeOut(title), FadeOut(subtitle))
 
-
-# =============================================================================
-# SCENE 1: WHAT IS ISO 8583?
-# =============================================================================
-
-class WhatIsISO8583(Scene):
-    """Introduction to ISO 8583 (10-15s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_what_is_iso8583(scene):
+        """Introduction to ISO 8583 (10-15s)."""
         # Title
         title = Text("ISO 8583", font_size=50, weight=BOLD, color=COLOR_MTI)
 
@@ -205,12 +205,12 @@ class WhatIsISO8583(Scene):
         timeline = Text("1987 → today", font_size=30)
         timeline.next_to(title, DOWN, buff=0.4)
 
-        self.play(Write(title), run_time=0.8)
-        self.play(FadeIn(timeline), run_time=0.5)
-        self.wait(0.5)
+        scene.play(Write(title), run_time=0.8)
+        scene.play(FadeIn(timeline), run_time=0.5)
+        scene.wait(0.5)
 
         # Move title up
-        self.play(
+        scene.play(
             title.animate.scale(0.7).to_edge(UP),
             FadeOut(timeline)
         )
@@ -224,23 +224,17 @@ class WhatIsISO8583(Scene):
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
         bullets.next_to(title, DOWN, buff=0.8)
 
-        self.play(LaggedStart(*[FadeIn(bullet, shift=RIGHT) for bullet in bullets], lag_ratio=0.3))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(bullets))
+        scene.play(LaggedStart(*[FadeIn(bullet, shift=RIGHT) for bullet in bullets], lag_ratio=0.3))
+        scene.wait(2)
+        scene.play(FadeOut(title), FadeOut(bullets))
 
-
-# =============================================================================
-# SCENE 2: MEET THE MESSAGE
-# =============================================================================
-
-class MeetTheMessage(Scene):
-    """Display the full message structure (15-20s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_meet_the_message(scene):
+        """Display the full message structure (15-20s)."""
         # Title
         title = Text("Meet the Message", font_size=40, weight=BOLD)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
         # Create message segments - Row 1
         row1_segments = [
@@ -262,29 +256,29 @@ class MeetTheMessage(Scene):
 
         # Create rows
         row1 = MessageStrip(row1_segments)
-        row1.scale(0.75)  # Increased from 0.6 to 0.75 for better visibility
+        row1.scale(0.75)
 
         row2 = MessageStrip(row2_segments)
-        row2.scale(0.75)  # Increased from 0.6 to 0.75 for better visibility
+        row2.scale(0.75)
 
         row3 = MessageStrip(row3_segments)
-        row3.scale(0.75)  # Increased from 0.6 to 0.75 for better visibility
+        row3.scale(0.75)
 
-        # Stack rows vertically
+        # Arrange rows vertically
         message_display = VGroup(row1, row2, row3).arrange(DOWN, buff=0.5)
-        message_display.next_to(title, DOWN, buff=0.5)
+        message_display.next_to(title, DOWN, buff=0.8)
 
         # Animate all segments appearing
         all_blocks = row1.blocks + row2.blocks + row3.blocks
-        self.play(LaggedStart(*[FadeIn(block, shift=UP) for block in all_blocks], lag_ratio=0.15))
-        self.wait(1)
+        scene.play(LaggedStart(*[FadeIn(block, shift=UP) for block in all_blocks], lag_ratio=0.15))
+        scene.wait(1)
 
         # Add BCD encoding note
         bcd_note = Text("BCD encoding: 2 digits per byte", font_size=24, color=YELLOW, slant=ITALIC)
         bcd_note.to_edge(DOWN, buff=0.5)
-        self.play(FadeIn(bcd_note))
-        self.wait(1.5)
-        self.play(FadeOut(bcd_note))
+        scene.play(FadeIn(bcd_note))
+        scene.wait(1.5)
+        scene.play(FadeOut(bcd_note))
 
         # Highlight each segment with 3-second intervals
         highlights = []
@@ -292,35 +286,24 @@ class MeetTheMessage(Scene):
             highlight = SurroundingRectangle(block, color=YELLOW, buff=0.15, stroke_width=3)
             highlights.append(highlight)
 
-        # Animate highlights sequentially
         for i, highlight in enumerate(highlights):
             if i == 0:
-                self.play(Create(highlight), run_time=0.5)
+                scene.play(Create(highlight), run_time=0.5)
             else:
-                self.play(ReplacementTransform(highlights[i-1], highlight), run_time=0.5)
-            self.wait(3)
+                scene.play(ReplacementTransform(highlights[i-1], highlight), run_time=0.5)
+            scene.wait(3)
 
-        # Fade out the last highlight
-        self.play(FadeOut(highlights[-1]))
-        self.wait(1)
+        scene.play(FadeOut(highlights[-1]))
+        scene.wait(1)
+        scene.play(FadeOut(title), FadeOut(message_display))
 
-        # Store for potential next scene use
-        self.message_display = message_display
-        self.title = title
-
-
-# =============================================================================
-# SCENE 3: MTI DEEP DIVE
-# =============================================================================
-
-class MTIDeepDive(Scene):
-    """Deep dive into MTI structure (20-30s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_mti_deep_dive(scene):
+        """MTI breakdown (20-30s)."""
         # Title
         title = Text("Message Type Indicator (MTI)", font_size=40, weight=BOLD)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
         # MTI bytes (BCD) with ASCII overlay
         mti_hex = Text(MTI_HEX, font_size=40, font="monospace", color=COLOR_MTI)
@@ -335,15 +318,15 @@ class MTIDeepDive(Scene):
         bcd_label.next_to(mti_hex, DOWN, buff=0.4)
         ascii_label.next_to(mti_ascii, DOWN, buff=0.4)
 
-        self.play(FadeIn(mti_hex), FadeIn(bcd_label))
-        self.wait(0.8)
-        self.play(
+        scene.play(FadeIn(mti_hex), FadeIn(bcd_label))
+        scene.wait(0.8)
+        scene.play(
             Transform(mti_hex, mti_ascii),
             Transform(bcd_label, ascii_label),
             run_time=1
         )
-        self.wait(0.8)
-        self.play(FadeOut(bcd_label))  # bcd_label now contains ascii_label after transform
+        scene.wait(0.8)
+        scene.play(FadeOut(bcd_label))  # bcd_label now contains ascii_label after transform
 
         # MTI breakdown
         breakdown = VGroup(
@@ -354,12 +337,11 @@ class MTIDeepDive(Scene):
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.25)
         breakdown.next_to(mti_hex, DOWN, buff=0.8)
 
-        self.play(LaggedStart(*[Write(line) for line in breakdown], lag_ratio=0.3))
-        self.wait(1)
+        scene.play(LaggedStart(*[FadeIn(line, shift=RIGHT) for line in breakdown], lag_ratio=0.3))
+        scene.wait(1)
+        scene.play(FadeOut(breakdown))
 
         # Common MTI pairs
-        self.play(FadeOut(breakdown))
-
         pairs = VGroup(
             Text("0100/0110 — Authorization request/response", font_size=30),
             Text("0200/0210 — Financial request/response", font_size=30, color=COLOR_MTI),
@@ -367,51 +349,44 @@ class MTIDeepDive(Scene):
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
         pairs.next_to(mti_hex, DOWN, buff=0.8)
 
-        self.play(LaggedStart(*[FadeIn(pair, shift=UP) for pair in pairs], lag_ratio=0.2))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(mti_hex), FadeOut(pairs))
+        scene.play(LaggedStart(*[FadeIn(pair, shift=RIGHT) for pair in pairs], lag_ratio=0.3))
+        scene.wait(2)
+        scene.play(FadeOut(title), FadeOut(mti_hex), FadeOut(pairs))
 
-
-# =============================================================================
-# SCENE 4: BITMAP CONCEPT
-# =============================================================================
-
-class BitmapConcept(Scene):
-    """Explain how bitmaps work (25-35s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_bitmap_concept(scene):
+        """Bitmap explanation with bit numbering (25-35s)."""
         # Title
-        title = Text("The Bitmap", font_size=40, weight=BOLD)
+        title = Text("Bitmap Concept", font_size=40, weight=BOLD, color=COLOR_PRIMARY_BITMAP)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
-        # Primary bitmap hex
+        # Show first two bytes of primary bitmap
         bitmap_hex = Text(PRIMARY_BITMAP_HEX, font_size=36, font="monospace", color=COLOR_PRIMARY_BITMAP)
-        bitmap_hex.move_to(UP * 1.5)
-        self.play(FadeIn(bitmap_hex))
-        self.wait(0.5)
+        bitmap_hex.move_to(UP * 2)
+        scene.play(FadeIn(bitmap_hex))
+        scene.wait(0.5)
 
-        # Focus on first two bytes D0 20 to show bit 11
+        # Highlight first two bytes
         first_two_bytes = Text("D0 20", font_size=36, font="monospace", color=COLOR_PRIMARY_BITMAP)
-        first_two_bytes.move_to(UP * 1.5)
-        self.play(Transform(bitmap_hex, first_two_bytes), run_time=0.8)
-        self.wait(0.5)
+        first_two_bytes.move_to(UP * 2)
+        scene.play(Transform(bitmap_hex, first_two_bytes))
+        scene.wait(0.5)
 
-        # Expand to binary with bit numbers (2 bytes = 16 bits)
+        # Create binary visualization for 2 bytes (16 bits)
         binary_viz = BitmapVisualizer("D0 20", num_bytes=2)
-        binary_viz.scale(0.7)  # Scale down to fit on screen
+        binary_viz.scale(0.7)
         binary_viz.move_to(ORIGIN + UP * 0.3)
 
-        self.play(ReplacementTransform(bitmap_hex, binary_viz), run_time=1.5)
-        self.wait(0.5)
+        scene.play(FadeIn(binary_viz))
+        scene.wait(0.5)
 
-        # Pulse the bits that are 1
-        # D0 = 11010000: Bit 1 (index 0), Bit 2 (index 1), Bit 4 (index 3)
-        # 20 = 00100000: Bit 11 (index 10)
+        # Pulse the set bits: D0 = 11010000 (bits 1,2,4), 20 = 00100000 (bit 11)
+        # Bit indices: 0,1,3 for first byte, 10 for second byte
         set_bits = [0, 1, 3, 10]
         pulses = [binary_viz.binary_digits[i].animate.scale(1.3).set_color(YELLOW) for i in set_bits]
-        self.play(*pulses, run_time=0.5)
-        self.play(*[binary_viz.binary_digits[i].animate.scale(1/1.3) for i in set_bits], run_time=0.5)
+        scene.play(*pulses, run_time=0.5)
+        scene.play(*[binary_viz.binary_digits[i].animate.scale(1/1.3) for i in set_bits], run_time=0.5)
 
         # Show implications
         implications = VGroup(
@@ -422,29 +397,23 @@ class BitmapConcept(Scene):
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.25)
         implications.next_to(binary_viz, DOWN, buff=0.8)
 
-        self.play(LaggedStart(*[FadeIn(imp, shift=RIGHT) for imp in implications], lag_ratio=0.3))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(binary_viz), FadeOut(implications))
+        scene.play(LaggedStart(*[FadeIn(imp, shift=RIGHT) for imp in implications], lag_ratio=0.3))
+        scene.wait(2)
+        scene.play(FadeOut(title), FadeOut(bitmap_hex), FadeOut(binary_viz), FadeOut(implications))
 
-
-# =============================================================================
-# SCENE 5: SECONDARY BITMAP
-# =============================================================================
-
-class SecondaryBitmap(Scene):
-    """Explain secondary bitmap (8-12s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_secondary_bitmap(scene):
+        """Secondary bitmap explanation (8-12s)."""
         # Title
         title = Text("Secondary Bitmap", font_size=40, weight=BOLD, color=COLOR_SECONDARY_BITMAP)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
         # Secondary bitmap
         sec_bitmap = Text(SECONDARY_BITMAP_HEX, font_size=36, font="monospace", color=COLOR_SECONDARY_BITMAP)
         sec_bitmap.move_to(ORIGIN + UP * 0.5)
-        self.play(FadeIn(sec_bitmap))
-        self.wait(0.5)
+        scene.play(FadeIn(sec_bitmap))
+        scene.wait(0.5)
 
         # Explanation
         explanation = VGroup(
@@ -454,23 +423,17 @@ class SecondaryBitmap(Scene):
         ).arrange(DOWN, buff=0.3)
         explanation.next_to(sec_bitmap, DOWN, buff=0.8)
 
-        self.play(LaggedStart(*[FadeIn(exp, shift=UP) for exp in explanation], lag_ratio=0.3))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(sec_bitmap), FadeOut(explanation))
+        scene.play(LaggedStart(*[FadeIn(exp, shift=UP) for exp in explanation], lag_ratio=0.3))
+        scene.wait(2)
+        scene.play(FadeOut(title), FadeOut(sec_bitmap), FadeOut(explanation))
 
-
-# =============================================================================
-# SCENE 6: DATA ELEMENTS - FIXED VS VARIABLE
-# =============================================================================
-
-class DataElementsFixedVsVariable(Scene):
-    """Compare fixed and variable length fields (35-45s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_data_elements_fixed_vs_variable(scene):
+        """Compare fixed and variable length fields (35-45s)."""
         # Title
         title = Text("Data Elements: Fixed vs Variable", font_size=38, weight=BOLD)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
         # === DE 2 (LLVAR) - Upper section ===
         de2_label = Text("DE 2 — PAN (LLVAR, BCD)", font_size=32, color=COLOR_DATA_ELEMENT, weight=BOLD)
@@ -479,14 +442,12 @@ class DataElementsFixedVsVariable(Scene):
         de2_hex = Text(DE2_HEX, font_size=24, font="monospace", color=COLOR_DATA_ELEMENT)
         de2_hex.next_to(de2_label, DOWN, buff=0.5)
 
-        self.play(Write(de2_label))
-        self.play(FadeIn(de2_hex))
-        self.wait(0.5)
+        scene.play(Write(de2_label))
+        scene.play(FadeIn(de2_hex))
+        scene.wait(0.5)
 
         # Highlight length prefix (now 1 byte BCD)
-        # Create invisible copy of just the "16" part to get proper positioning
         length_part = Text(DE2_LENGTH_HEX, font_size=24, font="monospace", color=YELLOW)
-        # Position it to align with the start of de2_hex
         length_part.next_to(de2_label, DOWN, buff=0.5)
         length_part.align_to(de2_hex, LEFT)
 
@@ -494,23 +455,22 @@ class DataElementsFixedVsVariable(Scene):
         length_text = Text("length = 16 (1 byte)", font_size=24, color=YELLOW)
         length_text.next_to(length_brace, DOWN, buff=0.3)
 
-        self.play(Create(length_brace), Write(length_text))
-        self.wait(0.8)
+        scene.play(Create(length_brace), Write(length_text))
+        scene.wait(0.8)
 
         # Show value explanation - centered
         value_text = Text(f"Value: {DE2_VALUE} (BCD packed, 8 bytes)", font_size=24, color=COLOR_DATA_ELEMENT)
         value_text.next_to(length_text, DOWN, buff=0.4)
-        # Center horizontally only (keep the vertical position from next_to)
         value_text.set_x(0)
-        self.play(FadeIn(value_text))
+        scene.play(FadeIn(value_text))
 
         # Highlight the value momentarily
-        self.play(Indicate(value_text, color=YELLOW, scale_factor=1.1))
-        self.wait(0.8)
+        scene.play(Indicate(value_text, color=YELLOW, scale_factor=1.1))
+        scene.wait(0.8)
 
         # Fade out length annotation
-        self.play(FadeOut(length_brace), FadeOut(length_text))
-        self.wait(0.3)
+        scene.play(FadeOut(length_brace), FadeOut(length_text))
+        scene.wait(0.3)
 
         # === DE 4 (Fixed 12) - Lower section ===
         de4_label = Text("DE 4 — Amount (N 12, BCD)", font_size=32, color=COLOR_DATA_ELEMENT, weight=BOLD)
@@ -519,45 +479,39 @@ class DataElementsFixedVsVariable(Scene):
         de4_hex = Text(DE4_HEX, font_size=24, font="monospace", color=COLOR_DATA_ELEMENT)
         de4_hex.next_to(de4_label, DOWN, buff=0.5)
 
-        self.play(Write(de4_label))
-        self.play(FadeIn(de4_hex))
-        self.wait(0.5)
+        scene.play(Write(de4_label))
+        scene.play(FadeIn(de4_hex))
+        scene.wait(0.5)
 
         # Brace for entire field - now below
         de4_brace = Brace(de4_hex, DOWN, color=YELLOW)
         de4_brace_text = Text("12 digits (6 bytes BCD)", font_size=24, color=YELLOW)
         de4_brace_text.next_to(de4_brace, DOWN, buff=0.15)
 
-        self.play(Create(de4_brace), Write(de4_brace_text))
-        self.wait(0.5)
+        scene.play(Create(de4_brace), Write(de4_brace_text))
+        scene.wait(0.5)
 
         # Show interpretation - to the right side
         amount_text = Text(f"= {DE4_VALUE} = $10.00", font_size=26, color=COLOR_DATA_ELEMENT)
         amount_text.next_to(de4_hex, RIGHT, buff=0.8)
-        self.play(FadeIn(amount_text))
+        scene.play(FadeIn(amount_text))
 
         # Highlight the amount momentarily
-        self.play(Indicate(amount_text, color=YELLOW, scale_factor=1.1))
-        self.wait(1.5)
+        scene.play(Indicate(amount_text, color=YELLOW, scale_factor=1.1))
+        scene.wait(1.5)
 
         # Fade out annotations
-        self.play(FadeOut(de4_brace), FadeOut(de4_brace_text))
+        scene.play(FadeOut(de4_brace), FadeOut(de4_brace_text))
 
-        self.play(*[FadeOut(mob) for mob in self.mobjects])
+        scene.play(*[FadeOut(mob) for mob in scene.mobjects])
 
-
-# =============================================================================
-# SCENE 7: ANOTHER FIXED EXAMPLE
-# =============================================================================
-
-class AnotherFixedExample(Scene):
-    """Show DE 11 STAN (10-12s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_another_fixed_example(scene):
+        """Show DE 11 STAN (10-12s)."""
         # Title
         title = Text("DE 11 — STAN (System Trace Audit Number)", font_size=38, weight=BOLD, color=COLOR_DATA_ELEMENT)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
         # DE 11 hex (BCD)
         de11_hex = Text(DE11_HEX, font_size=40, font="monospace", color=COLOR_DATA_ELEMENT)
@@ -566,8 +520,8 @@ class AnotherFixedExample(Scene):
         bcd_note = Text("BCD: 12 34 56", font_size=28, color=YELLOW)
         bcd_note.next_to(de11_hex, DOWN, buff=0.4)
 
-        self.play(FadeIn(de11_hex), FadeIn(bcd_note))
-        self.wait(0.5)
+        scene.play(FadeIn(de11_hex), FadeIn(bcd_note))
+        scene.wait(0.5)
 
         # Show decoded value
         de11_ascii = Text(DE11_VALUE, font_size=48, font="monospace", color=COLOR_DATA_ELEMENT, weight=BOLD)
@@ -576,40 +530,35 @@ class AnotherFixedExample(Scene):
         decoded_note = Text("Represents: 123456", font_size=28, color=YELLOW)
         decoded_note.next_to(de11_ascii, DOWN, buff=0.4)
 
-        self.play(
+        scene.play(
             Transform(de11_hex, de11_ascii),
             Transform(bcd_note, decoded_note),
             run_time=0.8
         )
-        self.wait(0.5)
-        self.play(FadeOut(bcd_note))  # bcd_note now contains decoded_note after transform
+        scene.wait(0.5)
+        scene.play(FadeOut(bcd_note))
 
         # Format explanation
         format_text = Text("Format: N 6 (6-digit numeric, 3 bytes BCD)", font_size=30)
         format_text.next_to(de11_hex, DOWN, buff=0.6)
-        self.play(Write(format_text))
-        self.wait(0.5)
+        scene.play(Write(format_text))
+        scene.wait(0.5)
 
         # Breakdown
         breakdown = Text("Unique transaction identifier for tracking", font_size=32, color=YELLOW)
         breakdown.next_to(format_text, DOWN, buff=0.5)
-        self.play(FadeIn(breakdown, shift=UP))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(de11_hex), FadeOut(format_text), FadeOut(breakdown))
+        scene.play(FadeIn(breakdown, shift=UP))
+        scene.wait(2)
 
+        scene.play(FadeOut(title), FadeOut(de11_hex), FadeOut(format_text), FadeOut(breakdown))
 
-# =============================================================================
-# SCENE 8: DATA TYPES CHEAT SHEET
-# =============================================================================
-
-class DataTypesCheatSheet(Scene):
-    """Quick reference for data types (10-15s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_data_types_cheat_sheet(scene):
+        """Data types reference (10-15s)."""
         # Title
         title = Text("Data Types Cheat Sheet", font_size=40, weight=BOLD)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
         # Create grid of data types
         types = VGroup(
@@ -628,25 +577,19 @@ class DataTypesCheatSheet(Scene):
                        font_size=26, color=ORANGE, weight=BOLD)
         bcd_note.to_edge(DOWN, buff=0.8)
 
-        self.play(LaggedStart(*[FadeIn(t, shift=RIGHT) for t in types], lag_ratio=0.2))
-        self.wait(1.5)
-        self.play(FadeIn(bcd_note, shift=UP))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(types), FadeOut(bcd_note))
+        scene.play(LaggedStart(*[FadeIn(t, shift=RIGHT) for t in types], lag_ratio=0.2))
+        scene.wait(1.5)
+        scene.play(FadeIn(bcd_note, shift=UP))
+        scene.wait(2)
+        scene.play(FadeOut(title), FadeOut(types), FadeOut(bcd_note))
 
-
-# =============================================================================
-# SCENE 9: ON THE WIRE - LENGTH PREFIX & SOCKETS
-# =============================================================================
-
-class OnTheWire(Scene):
-    """Show network transmission with length prefix (20-30s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_on_the_wire(scene):
+        """Network transmission visualization (20-30s)."""
         # Title
         title = Text("On the Wire", font_size=40, weight=BOLD)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
         # Original message (compact)
         message = Text("36-byte ISO 8583 message (BCD)", font_size=28, color=WHITE)
@@ -654,8 +597,8 @@ class OnTheWire(Scene):
         message_group = VGroup(message, message_box)
         message_group.move_to(ORIGIN + UP * 1.5)
 
-        self.play(Create(message_box), Write(message))
-        self.wait(0.5)
+        scene.play(Create(message_box), Write(message))
+        scene.wait(0.5)
 
         # Add length prefix
         prefix = Text(LENGTH_PREFIX_HEX, font_size=36, font="monospace", color=COLOR_LENGTH_PREFIX, weight=BOLD)
@@ -667,11 +610,11 @@ class OnTheWire(Scene):
         decimal_label = Text("(36 decimal)", font_size=24, color=COLOR_LENGTH_PREFIX)
         decimal_label.next_to(prefix, DOWN, buff=0.3)
 
-        self.play(FadeIn(prefix, shift=RIGHT), Write(prefix_label), Write(decimal_label))
-        self.wait(1)
+        scene.play(FadeIn(prefix, shift=RIGHT), Write(prefix_label), Write(decimal_label))
+        scene.wait(1)
 
         # Clear screen for network diagram
-        self.play(
+        scene.play(
             FadeOut(prefix_label),
             FadeOut(decimal_label),
         )
@@ -686,34 +629,27 @@ class OnTheWire(Scene):
         # Socket line - positioned below the labels
         socket_line = Line(LEFT * 4.5 + DOWN * 0.5, RIGHT * 4.5 + DOWN * 0.5, color=BLUE, stroke_width=3)
 
-        self.play(Write(client), Write(host), Create(socket_line))
-        self.wait(0.5)
+        scene.play(Write(client), Write(host), Create(socket_line))
+        scene.wait(0.5)
 
         # Scale and position message with prefix at start of transmission line
         combined_frame = VGroup(prefix, message_box, message)
-        self.play(combined_frame.animate.scale(0.5).move_to(socket_line.get_start() + UP * 0.3))
-        self.wait(0.5)
+        scene.play(combined_frame.animate.scale(0.5).move_to(socket_line.get_start() + UP * 0.3))
+        scene.wait(0.5)
 
         # Animate frame traveling across the line
-        self.play(combined_frame.animate.move_to(socket_line.get_end() + UP * 0.3), run_time=2.5, rate_func=linear)
-        self.wait(1)
+        scene.play(combined_frame.animate.move_to(socket_line.get_end() + UP * 0.3), run_time=2.5, rate_func=linear)
+        scene.wait(1)
 
-        self.play(*[FadeOut(mob) for mob in self.mobjects])
+        scene.play(*[FadeOut(mob) for mob in scene.mobjects])
 
-
-# =============================================================================
-# SCENE 10: RECAP & POINTERS
-# =============================================================================
-
-class RecapAndPointers(Scene):
-    """Final recap (10-15s)."""
-
-    def construct(self):
+    @staticmethod
+    def construct_recap_and_pointers(scene):
+        """Final summary (10-15s)."""
         # Title
         title = Text("Recap", font_size=48, weight=BOLD)
-        title.set_color_by_gradient(COLOR_MTI, COLOR_DATA_ELEMENT)
         title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        scene.play(Write(title), run_time=0.8)
 
         # Checklist
         checklist = VGroup(
@@ -724,389 +660,125 @@ class RecapAndPointers(Scene):
         ).arrange(DOWN, aligned_edge=LEFT, buff=0.4)
         checklist.move_to(ORIGIN)
 
-        self.play(LaggedStart(*[FadeIn(item, shift=UP) for item in checklist], lag_ratio=0.4))
-        self.wait(2)
+        scene.play(LaggedStart(*[FadeIn(item, shift=UP) for item in checklist], lag_ratio=0.4))
+        scene.wait(2)
 
         # Final message
         final = Text("Questions ?", font_size=32)
         final.next_to(checklist, DOWN, buff=0.8)
-        self.play(FadeIn(final, shift=UP))
-        self.wait(2)
+        scene.play(FadeIn(final, shift=UP))
+        scene.wait(2)
 
-        self.play(FadeOut(title), FadeOut(checklist), FadeOut(final))
+        scene.play(FadeOut(title), FadeOut(checklist), FadeOut(final))
 
 
 # =============================================================================
-# OPTIONAL: Full Presentation (chains all scenes)
+# INDIVIDUAL SCENE CLASSES
+# =============================================================================
+
+class ColdOpen(Scene):
+    """Cold open with title card (2-3s)."""
+    def construct(self):
+        ISO8583Scenes.construct_cold_open(self)
+
+
+class WhatIsISO8583(Scene):
+    """Introduction to ISO 8583 (10-15s)."""
+    def construct(self):
+        ISO8583Scenes.construct_what_is_iso8583(self)
+
+
+class MeetTheMessage(Scene):
+    """Display the full message structure (15-20s)."""
+    def construct(self):
+        ISO8583Scenes.construct_meet_the_message(self)
+
+
+class MTIDeepDive(Scene):
+    """MTI breakdown (20-30s)."""
+    def construct(self):
+        ISO8583Scenes.construct_mti_deep_dive(self)
+
+
+class BitmapConcept(Scene):
+    """Bitmap explanation with bit numbering (25-35s)."""
+    def construct(self):
+        ISO8583Scenes.construct_bitmap_concept(self)
+
+
+class SecondaryBitmap(Scene):
+    """Secondary bitmap explanation (8-12s)."""
+    def construct(self):
+        ISO8583Scenes.construct_secondary_bitmap(self)
+
+
+class DataElementsFixedVsVariable(Scene):
+    """Compare fixed and variable length fields (35-45s)."""
+    def construct(self):
+        ISO8583Scenes.construct_data_elements_fixed_vs_variable(self)
+
+
+class AnotherFixedExample(Scene):
+    """Show DE 11 STAN (10-12s)."""
+    def construct(self):
+        ISO8583Scenes.construct_another_fixed_example(self)
+
+
+class DataTypesCheatSheet(Scene):
+    """Data types reference (10-15s)."""
+    def construct(self):
+        ISO8583Scenes.construct_data_types_cheat_sheet(self)
+
+
+class OnTheWire(Scene):
+    """Network transmission visualization (20-30s)."""
+    def construct(self):
+        ISO8583Scenes.construct_on_the_wire(self)
+
+
+class RecapAndPointers(Scene):
+    """Final summary (10-15s)."""
+    def construct(self):
+        ISO8583Scenes.construct_recap_and_pointers(self)
+
+
+# =============================================================================
+# FULL PRESENTATION (All scenes chained)
 # =============================================================================
 
 class FullPresentation(Scene):
-    """Chains all scenes together into a single video."""
+    """Complete presentation with all scenes chained together."""
 
     def construct(self):
-        # Scene 0: ColdOpen
-        title = Text("ISO 8583 in 10 Minutes", font_size=60, weight=BOLD)
-        title.set_color_by_gradient(COLOR_MTI, COLOR_DATA_ELEMENT)
-        subtitle = Text("Messages behind card payments", font_size=30)
-        subtitle.next_to(title, DOWN, buff=0.5)
-        self.play(FadeIn(title, shift=DOWN), run_time=1)
-        self.play(FadeIn(subtitle), run_time=0.5)
-        self.wait(1)
-        self.play(FadeOut(title), FadeOut(subtitle))
+        # Scene 0: Cold Open
+        ISO8583Scenes.construct_cold_open(self)
 
-        # Scene 1: WhatIsISO8583
-        title = Text("ISO 8583", font_size=50, weight=BOLD, color=COLOR_MTI)
-        timeline = Text("1987 → today", font_size=30)
-        timeline.next_to(title, DOWN, buff=0.4)
-        self.play(Write(title), run_time=0.8)
-        self.play(FadeIn(timeline), run_time=0.5)
-        self.wait(0.5)
-        self.play(title.animate.scale(0.7).to_edge(UP), FadeOut(timeline))
-        bullets = VGroup(
-            Text("• Defines how payment systems communicate", font_size=24),
-            Text("• Authorization, financial transactions, reversals", font_size=24),
-            Text("• Network management messages", font_size=24),
-            Text("• Compact, efficient message layout", font_size=24),
-        ).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
-        bullets.next_to(title, DOWN, buff=0.8)
-        self.play(LaggedStart(*[FadeIn(bullet, shift=RIGHT) for bullet in bullets], lag_ratio=0.3))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(bullets))
+        # Scene 1: What is ISO 8583?
+        ISO8583Scenes.construct_what_is_iso8583(self)
 
-        # Scene 2: MeetTheMessage
-        title = Text("Meet the Message", font_size=40, weight=BOLD)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
-        row1_segments = [
-            {'hex': MTI_HEX, 'label': 'MTI', 'color': COLOR_MTI},
-            {'hex': PRIMARY_BITMAP_HEX, 'label': 'Primary Bitmap', 'color': COLOR_PRIMARY_BITMAP},
-            {'hex': SECONDARY_BITMAP_HEX, 'label': 'Secondary Bitmap', 'color': COLOR_SECONDARY_BITMAP},
-        ]
-        row2_segments = [
-            {'hex': DE2_HEX, 'label': 'DE 2 (PAN)', 'color': COLOR_DATA_ELEMENT},
-        ]
-        row3_segments = [
-            {'hex': DE4_HEX, 'label': 'DE 4 (Amount)', 'color': COLOR_DATA_ELEMENT},
-            {'hex': DE11_HEX, 'label': 'DE 11 (STAN)', 'color': COLOR_DATA_ELEMENT},
-        ]
-        row1 = MessageStrip(row1_segments)
-        row1.scale(0.75)
-        row2 = MessageStrip(row2_segments)
-        row2.scale(0.75)
-        row3 = MessageStrip(row3_segments)
-        row3.scale(0.75)
-        message_display = VGroup(row1, row2, row3).arrange(DOWN, buff=0.5)
-        message_display.next_to(title, DOWN, buff=0.5)
-        all_blocks = row1.blocks + row2.blocks + row3.blocks
-        self.play(LaggedStart(*[FadeIn(block, shift=UP) for block in all_blocks], lag_ratio=0.15))
-        self.wait(1)
+        # Scene 2: Meet the Message
+        ISO8583Scenes.construct_meet_the_message(self)
 
-        # Add BCD encoding note
-        bcd_note = Text("BCD encoding: 2 digits per byte", font_size=24, color=YELLOW, slant=ITALIC)
-        bcd_note.to_edge(DOWN, buff=0.5)
-        self.play(FadeIn(bcd_note))
-        self.wait(1.5)
-        self.play(FadeOut(bcd_note))
+        # Scene 3: MTI Deep Dive
+        ISO8583Scenes.construct_mti_deep_dive(self)
 
-        # Highlight each segment with 3-second intervals
-        highlights = []
-        for block in all_blocks:
-            highlight = SurroundingRectangle(block, color=YELLOW, buff=0.15, stroke_width=3)
-            highlights.append(highlight)
-        for i, highlight in enumerate(highlights):
-            if i == 0:
-                self.play(Create(highlight), run_time=0.5)
-            else:
-                self.play(ReplacementTransform(highlights[i-1], highlight), run_time=0.5)
-            self.wait(3)
-        self.play(FadeOut(highlights[-1]))
-        self.wait(1)
-        self.play(FadeOut(title), FadeOut(message_display))
+        # Scene 4: Bitmap Concept
+        ISO8583Scenes.construct_bitmap_concept(self)
 
-        # Scene 3: MTIDeepDive
-        title = Text("Message Type Indicator (MTI)", font_size=40, weight=BOLD)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
+        # Scene 5: Secondary Bitmap
+        ISO8583Scenes.construct_secondary_bitmap(self)
 
-        # MTI bytes (BCD) with ASCII overlay
-        mti_hex = Text(MTI_HEX, font_size=40, font="monospace", color=COLOR_MTI)
-        mti_ascii = Text(MTI_ASCII, font_size=50, font="monospace", color=COLOR_MTI, weight=BOLD)
+        # Scene 6: Data Elements Fixed vs Variable
+        ISO8583Scenes.construct_data_elements_fixed_vs_variable(self)
 
-        # BCD explanation
-        bcd_label = Text("BCD packed: 02 00", font_size=24, color=YELLOW)
-        ascii_label = Text("Represents: 0200", font_size=24, color=YELLOW)
+        # Scene 7: Another Fixed Example (DE 11)
+        ISO8583Scenes.construct_another_fixed_example(self)
 
-        mti_hex.move_to(UP * 1.5)
-        mti_ascii.move_to(UP * 1.5)
-        bcd_label.next_to(mti_hex, DOWN, buff=0.4)
-        ascii_label.next_to(mti_ascii, DOWN, buff=0.4)
+        # Scene 8: Data Types Cheat Sheet
+        ISO8583Scenes.construct_data_types_cheat_sheet(self)
 
-        self.play(FadeIn(mti_hex), FadeIn(bcd_label))
-        self.wait(0.8)
-        self.play(
-            Transform(mti_hex, mti_ascii),
-            Transform(bcd_label, ascii_label),
-            run_time=1
-        )
-        self.wait(0.8)
-        self.play(FadeOut(bcd_label))  # bcd_label now contains ascii_label after transform
+        # Scene 9: On the Wire
+        ISO8583Scenes.construct_on_the_wire(self)
 
-        # MTI breakdown
-        breakdown = VGroup(
-            Text("0 — ISO version (legacy)", font_size=28),
-            Text("2 — Class = Financial", font_size=28),
-            Text("0 — Function = Request", font_size=28),
-            Text("0 — Origin = Acquirer", font_size=28),
-        ).arrange(DOWN, aligned_edge=LEFT, buff=0.25)
-        breakdown.next_to(mti_hex, DOWN, buff=0.8)
-        self.play(LaggedStart(*[Write(line) for line in breakdown], lag_ratio=0.3))
-        self.wait(1)
-        self.play(FadeOut(breakdown))
-        pairs = VGroup(
-            Text("0100/0110 — Authorization request/response", font_size=30),
-            Text("0200/0210 — Financial request/response", font_size=30, color=COLOR_MTI),
-            Text("0800/0810 — Network management", font_size=30),
-        ).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
-        pairs.next_to(mti_hex, DOWN, buff=0.8)
-        self.play(LaggedStart(*[FadeIn(pair, shift=UP) for pair in pairs], lag_ratio=0.2))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(mti_hex), FadeOut(pairs))
-
-        # Scene 4: BitmapConcept
-        title = Text("The Bitmap", font_size=40, weight=BOLD)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
-        bitmap_hex = Text(PRIMARY_BITMAP_HEX, font_size=36, font="monospace", color=COLOR_PRIMARY_BITMAP)
-        bitmap_hex.move_to(UP * 1.5)
-        self.play(FadeIn(bitmap_hex))
-        self.wait(0.5)
-        first_two_bytes = Text("D0 20", font_size=36, font="monospace", color=COLOR_PRIMARY_BITMAP)
-        first_two_bytes.move_to(UP * 1.5)
-        self.play(Transform(bitmap_hex, first_two_bytes), run_time=0.8)
-        self.wait(0.5)
-        binary_viz = BitmapVisualizer("D0 20", num_bytes=2)
-        binary_viz.scale(0.7)
-        binary_viz.move_to(ORIGIN + UP * 0.3)
-        self.play(ReplacementTransform(bitmap_hex, binary_viz), run_time=1.5)
-        self.wait(0.5)
-        set_bits = [0, 1, 3, 10]
-        pulses = [binary_viz.binary_digits[i].animate.scale(1.3).set_color(YELLOW) for i in set_bits]
-        self.play(*pulses, run_time=0.5)
-        self.play(*[binary_viz.binary_digits[i].animate.scale(1/1.3) for i in set_bits], run_time=0.5)
-        implications = VGroup(
-            Text("Bit 1 = 1  →  Secondary bitmap present", font_size=26),
-            Text("Bit 2 = 1  →  DE 2 present", font_size=26),
-            Text("Bit 4 = 1  →  DE 4 present", font_size=26),
-            Text("Bit 11 = 1  →  DE 11 present", font_size=26),
-        ).arrange(DOWN, aligned_edge=LEFT, buff=0.25)
-        implications.next_to(binary_viz, DOWN, buff=0.8)
-        self.play(LaggedStart(*[FadeIn(imp, shift=RIGHT) for imp in implications], lag_ratio=0.3))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(binary_viz), FadeOut(implications))
-
-        # Scene 5: SecondaryBitmap
-        title = Text("Secondary Bitmap", font_size=40, weight=BOLD, color=COLOR_SECONDARY_BITMAP)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
-        sec_bitmap = Text(SECONDARY_BITMAP_HEX, font_size=36, font="monospace", color=COLOR_SECONDARY_BITMAP)
-        sec_bitmap.move_to(ORIGIN + UP * 0.5)
-        self.play(FadeIn(sec_bitmap))
-        self.wait(0.5)
-        explanation = VGroup(
-            Text("Present because bit 1 is set in primary bitmap", font_size=24),
-            Text("Extends field range to DE 65-128", font_size=24),
-            Text("All zeros = no extended fields in this message", font_size=24),
-        ).arrange(DOWN, buff=0.3)
-        explanation.next_to(sec_bitmap, DOWN, buff=0.8)
-        self.play(LaggedStart(*[FadeIn(exp, shift=UP) for exp in explanation], lag_ratio=0.3))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(sec_bitmap), FadeOut(explanation))
-
-        # Scene 6: DataElementsFixedVsVariable
-        title = Text("Data Elements: Fixed vs Variable", font_size=38, weight=BOLD)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
-
-        # DE 2 (LLVAR) - Upper section
-        de2_label = Text("DE 2 — PAN (LLVAR, BCD)", font_size=32, color=COLOR_DATA_ELEMENT, weight=BOLD)
-        de2_label.move_to(UP * 2.2)
-        de2_hex = Text(DE2_HEX, font_size=24, font="monospace", color=COLOR_DATA_ELEMENT)
-        de2_hex.next_to(de2_label, DOWN, buff=0.5)
-        self.play(Write(de2_label))
-        self.play(FadeIn(de2_hex))
-        self.wait(0.5)
-
-        # Highlight length prefix (1 byte BCD)
-        length_part = Text(DE2_LENGTH_HEX, font_size=24, font="monospace", color=YELLOW)
-        length_part.next_to(de2_label, DOWN, buff=0.5)
-        length_part.align_to(de2_hex, LEFT)
-        length_brace = Brace(length_part, DOWN, color=YELLOW)
-        length_text = Text("length = 16 (1 byte)", font_size=24, color=YELLOW)
-        length_text.next_to(length_brace, DOWN, buff=0.3)
-        self.play(Create(length_brace), Write(length_text))
-        self.wait(0.8)
-
-        value_text = Text(f"Value: {DE2_VALUE} (BCD packed, 8 bytes)", font_size=24, color=COLOR_DATA_ELEMENT)
-        value_text.next_to(length_text, DOWN, buff=0.4)
-        value_text.set_x(0)
-        self.play(FadeIn(value_text))
-
-        # Highlight the value momentarily
-        self.play(Indicate(value_text, color=YELLOW, scale_factor=1.1))
-        self.wait(0.8)
-
-        self.play(FadeOut(length_brace), FadeOut(length_text))
-        self.wait(0.3)
-
-        # DE 4 (Fixed 12) - Lower section
-        de4_label = Text("DE 4 — Amount (N 12, BCD)", font_size=32, color=COLOR_DATA_ELEMENT, weight=BOLD)
-        de4_label.move_to(DOWN * 1.2)
-        de4_hex = Text(DE4_HEX, font_size=24, font="monospace", color=COLOR_DATA_ELEMENT)
-        de4_hex.next_to(de4_label, DOWN, buff=0.5)
-        self.play(Write(de4_label))
-        self.play(FadeIn(de4_hex))
-        self.wait(0.5)
-
-        de4_brace = Brace(de4_hex, DOWN, color=YELLOW)
-        de4_brace_text = Text("12 digits (6 bytes BCD)", font_size=24, color=YELLOW)
-        de4_brace_text.next_to(de4_brace, DOWN, buff=0.15)
-        self.play(Create(de4_brace), Write(de4_brace_text))
-        self.wait(0.5)
-
-        amount_text = Text(f"= {DE4_VALUE} = $10.00", font_size=26, color=COLOR_DATA_ELEMENT)
-        amount_text.next_to(de4_hex, RIGHT, buff=0.8)
-        self.play(FadeIn(amount_text))
-
-        # Highlight the amount momentarily
-        self.play(Indicate(amount_text, color=YELLOW, scale_factor=1.1))
-        self.wait(1.5)
-
-        self.play(FadeOut(de4_brace), FadeOut(de4_brace_text))
-
-        self.play(*[FadeOut(mob) for mob in self.mobjects])
-
-        # Scene 7: AnotherFixedExample
-        title = Text("DE 11 — STAN (System Trace Audit Number)", font_size=38, weight=BOLD, color=COLOR_DATA_ELEMENT)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
-
-        # DE 11 hex (BCD)
-        de11_hex = Text(DE11_HEX, font_size=40, font="monospace", color=COLOR_DATA_ELEMENT)
-        de11_hex.move_to(UP * 1)
-        bcd_note = Text("BCD: 12 34 56", font_size=28, color=YELLOW)
-        bcd_note.next_to(de11_hex, DOWN, buff=0.4)
-        self.play(FadeIn(de11_hex), FadeIn(bcd_note))
-        self.wait(0.5)
-
-        # Show decoded value
-        de11_ascii = Text(DE11_VALUE, font_size=48, font="monospace", color=COLOR_DATA_ELEMENT, weight=BOLD)
-        de11_ascii.move_to(UP * 1)
-        decoded_note = Text("Represents: 123456", font_size=28, color=YELLOW)
-        decoded_note.next_to(de11_ascii, DOWN, buff=0.4)
-        self.play(Transform(de11_hex, de11_ascii), Transform(bcd_note, decoded_note), run_time=0.8)
-        self.wait(0.5)
-        self.play(FadeOut(bcd_note))
-
-        format_text = Text("Format: N 6 (6-digit numeric, 3 bytes BCD)", font_size=30)
-        format_text.next_to(de11_hex, DOWN, buff=0.6)
-        self.play(Write(format_text))
-        self.wait(0.5)
-
-        breakdown = Text("Unique transaction identifier for tracking", font_size=32, color=YELLOW)
-        breakdown.next_to(format_text, DOWN, buff=0.5)
-        self.play(FadeIn(breakdown, shift=UP))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(de11_hex), FadeOut(format_text), FadeOut(breakdown))
-
-        # Scene 8: DataTypesCheatSheet
-        title = Text("Data Types Cheat Sheet", font_size=40, weight=BOLD)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
-        types = VGroup(
-            Text("N — Numeric (0-9)", font_size=24),
-            Text("AN — Alphanumeric (A-Z, 0-9)", font_size=24),
-            Text("ANS — Printable (includes symbols)", font_size=24),
-            Text("B — Binary data", font_size=24),
-            Text("Z — Track data", font_size=24),
-            Text("LLVAR — Variable, 2-digit length", font_size=24, color=YELLOW),
-            Text("LLLVAR — Variable, 3-digit length", font_size=24, color=YELLOW),
-        ).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
-        types.move_to(ORIGIN + UP * 0.5)
-
-        # Add BCD encoding note
-        bcd_note = Text("Encoding: BCD packs 2 decimal digits per byte",
-                       font_size=26, color=ORANGE, weight=BOLD)
-        bcd_note.to_edge(DOWN, buff=0.8)
-
-        self.play(LaggedStart(*[FadeIn(t, shift=RIGHT) for t in types], lag_ratio=0.2))
-        self.wait(1.5)
-        self.play(FadeIn(bcd_note, shift=UP))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(types), FadeOut(bcd_note))
-
-        # Scene 9: OnTheWire
-        title = Text("On the Wire", font_size=40, weight=BOLD)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
-
-        # Original message (compact)
-        message = Text("36-byte ISO 8583 message (BCD)", font_size=28, color=WHITE)
-        message_box = SurroundingRectangle(message, color=WHITE, buff=0.2)
-        message_group = VGroup(message, message_box)
-        message_group.move_to(ORIGIN + UP * 1.5)
-        self.play(Create(message_box), Write(message))
-        self.wait(0.5)
-
-        # Add length prefix
-        prefix = Text(LENGTH_PREFIX_HEX, font_size=36, font="monospace", color=COLOR_LENGTH_PREFIX, weight=BOLD)
-        prefix.next_to(message_group, LEFT, buff=0.4)
-        prefix_label = Text("2-byte length", font_size=24, color=COLOR_LENGTH_PREFIX)
-        prefix_label.next_to(prefix, UP, buff=0.3)
-        decimal_label = Text("(36 decimal)", font_size=24, color=COLOR_LENGTH_PREFIX)
-        decimal_label.next_to(prefix, DOWN, buff=0.3)
-        self.play(FadeIn(prefix, shift=RIGHT), Write(prefix_label), Write(decimal_label))
-        self.wait(1)
-
-        # Clear screen for network diagram
-        self.play(FadeOut(prefix_label), FadeOut(decimal_label))
-
-        # POS/Client and Host - positioned above the transmission line
-        client = Text("POS/Client", font_size=26)
-        client.move_to(LEFT * 5 + UP * 0.5)
-        host = Text("Host", font_size=26)
-        host.move_to(RIGHT * 5 + UP * 0.5)
-
-        # Socket line - positioned below the labels
-        socket_line = Line(LEFT * 4.5 + DOWN * 0.5, RIGHT * 4.5 + DOWN * 0.5, color=BLUE, stroke_width=3)
-        self.play(Write(client), Write(host), Create(socket_line))
-        self.wait(0.5)
-
-        # Scale and position message with prefix at start of transmission line
-        combined_frame = VGroup(prefix, message_box, message)
-        self.play(combined_frame.animate.scale(0.5).move_to(socket_line.get_start() + UP * 0.3))
-        self.wait(0.5)
-
-        # Animate frame traveling across the line
-        self.play(combined_frame.animate.move_to(socket_line.get_end() + UP * 0.3), run_time=2.5, rate_func=linear)
-        self.wait(1)
-        self.play(*[FadeOut(mob) for mob in self.mobjects])
-
-        # Scene 10: RecapAndPointers
-        title = Text("Recap", font_size=48, weight=BOLD)
-        title.set_color_by_gradient(COLOR_MTI, COLOR_DATA_ELEMENT)
-        title.to_edge(UP)
-        self.play(Write(title), run_time=0.8)
-        checklist = VGroup(
-            Text("✓ MTI classifies the message", font_size=28, color=COLOR_MTI),
-            Text("✓ Bitmap lists present fields", font_size=28, color=COLOR_PRIMARY_BITMAP),
-            Text("✓ Fixed vs variable elements", font_size=28, color=COLOR_DATA_ELEMENT),
-            Text("✓ Length prefix for transport", font_size=28, color=COLOR_LENGTH_PREFIX),
-        ).arrange(DOWN, aligned_edge=LEFT, buff=0.4)
-        checklist.move_to(ORIGIN)
-        self.play(LaggedStart(*[FadeIn(item, shift=UP) for item in checklist], lag_ratio=0.4))
-        self.wait(2)
-        final = Text("Questions ?", font_size=32)
-        final.next_to(checklist, DOWN, buff=0.8)
-        self.play(FadeIn(final, shift=UP))
-        self.wait(2)
-        self.play(FadeOut(title), FadeOut(checklist), FadeOut(final))
+        # Scene 10: Recap and Pointers
+        ISO8583Scenes.construct_recap_and_pointers(self)
