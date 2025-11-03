@@ -2263,7 +2263,7 @@ class JPOSScenes:
 
         # Flow 1 - Sending
         flow1_label = Text("Sending:", font_size=28, weight=BOLD)
-        flow1_label.move_to(UP * 1.8 + LEFT * 3)
+        flow1_label.move_to(UP * 1.8 + LEFT * 2)
 
         flow1_blocks = VGroup(
             Text("ISOMsg", font_size=22, color=COLOR_ISOMSG),
@@ -2284,7 +2284,7 @@ class JPOSScenes:
 
         # Flow 2 - QMUX Request/Response
         flow2_label = Text("QMUX Request/Response:", font_size=28, weight=BOLD)
-        flow2_label.move_to(DOWN * 0.5 + LEFT * 3)
+        flow2_label.move_to(DOWN * 0.5 + LEFT * 2)
 
         flow2_blocks = VGroup(
             Text("ISOMsg", font_size=22, color=COLOR_ISOMSG),
