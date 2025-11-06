@@ -1962,11 +1962,11 @@ class JPOSScenes:
 
         # LEFT: Timeout - 50% bigger
         timeout_label = Text("Case 1: Timeout", font_size=32, weight=BOLD, color=RED)
-        timeout_label.move_to(LEFT * 3.5 + UP * 2.2)
+        timeout_label.move_to(LEFT * 3.5 + UP * 2.6)
         scene.play(Write(timeout_label))
 
         t4 = create_thread_indicator("T4", "waiting")
-        t4.scale(1.5).move_to(LEFT * 3.5 + UP * 0.8)
+        t4.scale(1.5).move_to(LEFT * 3.5 + UP * 0.4)
         m4 = create_message_box("M4", "0200", "29110001", "000004", GREEN)
         m4.scale(0.9).move_to(LEFT * 3.5 + UP * 0.1)
 
@@ -2004,7 +2004,7 @@ class JPOSScenes:
         scene.play(Write(unmatched_label))
 
         orphan_resp = create_message_box("R99", "0210", "29110001", "000099", BLUE)
-        orphan_resp.scale(0.9).move_to(RIGHT * 3.5 + UP * 0.6)
+        orphan_resp.scale(0.9).move_to(RIGHT * 3.5 + UP * 0.8)
         orphan_key = create_key_tag("K99:000099")
         orphan_key.scale(1.1).move_to(orphan_resp.get_top() + UP * 0.25)
 
@@ -2016,7 +2016,7 @@ class JPOSScenes:
         scene.wait(0.5)
 
         # Arrow pointing down - thicker
-        down_arrow = Arrow(RIGHT * 3.5 + DOWN * 0.65, RIGHT * 3.5 + DOWN * 1.15, color=ORANGE, stroke_width=6)
+        down_arrow = Arrow(RIGHT * 3.5 + DOWN * 0.65, RIGHT * 3.5 + DOWN * 1.0, color=ORANGE, stroke_width=6)
         scene.play(Create(down_arrow))
 
         unhandled_box = Rectangle(width=3.75, height=0.9, color=ORANGE, fill_opacity=0.3, stroke_width=3)
@@ -2031,7 +2031,7 @@ class JPOSScenes:
         scene.play(FadeIn(or_text))
 
         listener_box = Rectangle(width=4.2, height=0.9, color=ORANGE, fill_opacity=0.3, stroke_width=3)
-        listener_box.move_to(RIGHT * 3.5 + DOWN * 2.7)
+        listener_box.move_to(RIGHT * 3.5 + DOWN * 2.8)
         listener_lbl = Text("ISORequestListener", font_size=21, color=ORANGE, font="monospace", weight=BOLD)
         listener_lbl.move_to(listener_box.get_center())
         scene.play(Create(listener_box), Write(listener_lbl))
@@ -2251,6 +2251,121 @@ class JPOSScenes:
         scene.play(LaggedStart(*[FadeIn(benefit, shift=RIGHT) for benefit in benefits], lag_ratio=0.3), run_time=3)
         scene.wait(2.5)
 
+        scene.play(*[FadeOut(mob) for mob in scene.mobjects])
+
+    @staticmethod
+    def construct_jpos_credits(scene):
+        """jPOS Credits and Attribution (10-12s)."""
+
+        # Title - jPOS (compact header)
+        title = Text("jPOS", font_size=50, weight=BOLD, color="#BE0811")
+        title.to_edge(UP, buff=0.5)
+        scene.play(Write(title), run_time=0.8)
+        scene.wait(0.3)
+
+        # Website
+        website = Text("https://jpos.org/", font_size=24, color=BLUE)
+        website.next_to(title, DOWN, buff=0.2)
+        scene.play(FadeIn(website, shift=UP), run_time=0.6)
+        scene.wait(0.5)
+
+        # Special thanks section (better positioned)
+        thanks_title = Text("Special Thanks", font_size=30, weight=BOLD)
+        thanks_title.move_to(UP * 1.9)
+
+        thanks_text = VGroup(
+            Text("Alejandro Revilla", font_size=24, color=YELLOW),
+            Text("Creator of jPOS", font_size=20, color=GRAY, slant=ITALIC)
+        ).arrange(DOWN, buff=0.15)
+        thanks_text.next_to(thanks_title, DOWN, buff=0.3)
+
+        thanks_group = VGroup(thanks_title, thanks_text)
+        scene.play(FadeIn(thanks_group, shift=UP), run_time=0.8)
+        scene.wait(0.8)
+
+        # Created by section (with more spacing)
+        created_title = Text("Presentation Created By", font_size=26, weight=BOLD)
+        created_title.move_to(DOWN * 0.2)
+
+        author_info = VGroup(
+            Text("Fernando Ruscitti", font_size=22, color=WHITE),
+            Text("fernando.ruscitti@redbee.com", font_size=18, color=BLUE, font="monospace")
+        ).arrange(DOWN, buff=0.15)
+        author_info.next_to(created_title, DOWN, buff=0.25)
+
+        created_group = VGroup(created_title, author_info)
+        scene.play(FadeIn(created_group, shift=UP), run_time=0.8)
+        scene.wait(0.8)
+
+        # Load and display logos with background panels
+        try:
+            # Create background panels for logos
+            jpos_panel = RoundedRectangle(
+                width=4.5, height=1.5,
+                corner_radius=0.2,
+                fill_color=WHITE,
+                fill_opacity=0.95,
+                stroke_color=GRAY,
+                stroke_width=2
+            )
+            jpos_panel.move_to(LEFT * 2.5 + DOWN * 2.5)
+
+            redbee_panel = RoundedRectangle(
+                width=4.5, height=1.5,
+                corner_radius=0.2,
+                fill_color=WHITE,
+                fill_opacity=0.95,
+                stroke_color=GRAY,
+                stroke_width=2
+            )
+            redbee_panel.move_to(RIGHT * 2.5 + DOWN * 2.5)
+
+            # Fade in background panels first
+            scene.play(
+                FadeIn(jpos_panel),
+                FadeIn(redbee_panel),
+                run_time=0.5
+            )
+
+            # jPOS logo (left side)
+            jpos_logo = SVGMobject("/Users/ferar/work/charlas/iso8583/anim3/assets/jpos.svg")
+            jpos_logo.scale(0.3)
+            jpos_logo.move_to(LEFT * 2.5 + DOWN * 2.8)
+
+            # RedBee logo (right side)
+            redbee_logo = SVGMobject("/Users/ferar/work/charlas/iso8583/anim3/assets/redbee.svg")
+            redbee_logo.scale(0.55)
+            redbee_logo.move_to(RIGHT * 2.5 + DOWN * 2.8)
+
+            # Fade in logos on top of panels
+            scene.play(
+                FadeIn(jpos_logo, scale=0.8),
+                FadeIn(redbee_logo, scale=0.8),
+                run_time=0.8
+            )
+        except Exception as e:
+            # If logos fail to load, show text labels instead
+            print(f"Logo loading error: {e}")
+            jpos_label = Text("jPOS.org", font_size=22, color="#BE0811")
+            jpos_label.move_to(LEFT * 2.5 + DOWN * 2.8)
+
+            redbee_label = Text("RedBee Studios", font_size=22, color="#FF0001")
+            redbee_label.move_to(RIGHT * 2.5 + DOWN * 2.8)
+
+            scene.play(
+                FadeIn(jpos_label),
+                FadeIn(redbee_label),
+                run_time=0.8
+            )
+
+        scene.wait(0.5)
+
+        # Footer link
+        footer = Text("https://redbee.io", font_size=22, color=BLUE)
+        footer.to_edge(DOWN, buff=0.3)
+        scene.play(FadeIn(footer, shift=UP), run_time=0.6)
+
+        scene.wait(3)
         scene.play(*[FadeOut(mob) for mob in scene.mobjects])
 
     @staticmethod
@@ -2551,3 +2666,15 @@ class FullPresentationWithJPOS(Scene):
 
         # Scene J8: Putting Together
         JPOSScenes.construct_putting_together(self)
+
+        # Scene J9: Credits
+        JPOSScenes.construct_jpos_credits(self)
+
+
+# Standalone Credits Scene
+class JPOSCredits(Scene):
+    """Standalone credits scene for jPOS presentation."""
+    
+    def construct(self):
+        JPOSScenes.construct_jpos_credits(self)
+
