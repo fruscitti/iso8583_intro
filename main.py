@@ -180,6 +180,15 @@ class BitmapVisualizer(VGroup):
 # SCENE LOGIC - Helper Class (Option 1 Refactoring)
 # =============================================================================
 
+def add_watermark(scene):
+    """Add 'F.R - redbee studios' watermark to bottom-right corner of scene."""
+    watermark = Text("F.R - redbee studios", font_size=14, color=GRAY, weight=LIGHT)
+    watermark.set_opacity(0.5)
+    watermark.to_corner(DR, buff=0.3)
+    scene.add(watermark)
+    return watermark
+
+
 class ISO8583Scenes:
     """
     Helper class containing all scene construction logic.
@@ -190,6 +199,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_cold_open(scene):
         """Cold open with title card (2-3s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("ISO 8583 in 10 Minutes", font_size=60, weight=BOLD)
         title.set_color_by_gradient(COLOR_MTI, COLOR_DATA_ELEMENT)
@@ -207,6 +218,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_what_is_iso8583(scene):
         """Introduction to ISO 8583 (10-15s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("ISO 8583", font_size=50, weight=BOLD, color=COLOR_MTI)
 
@@ -240,6 +253,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_meet_the_message(scene):
         """Display the full message structure (15-20s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Meet the Message", font_size=40, weight=BOLD)
         title.to_edge(UP)
@@ -309,6 +324,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_mti_deep_dive(scene):
         """MTI breakdown (20-30s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Message Type Indicator (MTI)", font_size=40, weight=BOLD)
         title.to_edge(UP)
@@ -365,6 +382,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_bitmap_concept(scene):
         """Bitmap explanation with bit numbering (25-35s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Bitmap Concept", font_size=40, weight=BOLD, color=COLOR_PRIMARY_BITMAP)
         title.to_edge(UP)
@@ -413,6 +432,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_secondary_bitmap(scene):
         """Secondary bitmap explanation (8-12s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Secondary Bitmap", font_size=40, weight=BOLD, color=COLOR_SECONDARY_BITMAP)
         title.to_edge(UP)
@@ -439,6 +460,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_data_elements_fixed_vs_variable(scene):
         """Compare fixed and variable length fields (35-45s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Data Elements: Fixed vs Variable", font_size=38, weight=BOLD)
         title.to_edge(UP)
@@ -517,6 +540,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_another_fixed_example(scene):
         """Show DE 11 STAN (10-12s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("DE 11 — STAN (System Trace Audit Number)", font_size=38, weight=BOLD, color=COLOR_DATA_ELEMENT)
         title.to_edge(UP)
@@ -564,6 +589,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_data_types_cheat_sheet(scene):
         """Data types reference (10-15s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Data Types Cheat Sheet", font_size=40, weight=BOLD)
         title.to_edge(UP)
@@ -595,6 +622,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_on_the_wire(scene):
         """Network transmission visualization (20-30s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("On the Wire", font_size=40, weight=BOLD)
         title.to_edge(UP)
@@ -655,6 +684,8 @@ class ISO8583Scenes:
     @staticmethod
     def construct_recap_and_pointers(scene):
         """Final summary (10-15s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Recap", font_size=48, weight=BOLD)
         title.to_edge(UP)
@@ -694,6 +725,8 @@ class JPOSScenes:
     @staticmethod
     def construct_jpos_intro(scene):
         """Intro to jPOS (8-12s)."""
+        add_watermark(scene)
+
         # Title with jPOS branding
         title = Text("jPOS", font_size=60, weight=BOLD, color=COLOR_JPOS_BRAND)
         subtitle = Text("ISO 8583 toolkit for Java", font_size=32)
@@ -742,6 +775,8 @@ class JPOSScenes:
     @staticmethod
     def construct_isomsg_composite(scene):
         """ISOMsg uses Composite pattern (20-25s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("ISOMsg & the Composite Pattern", font_size=38, weight=BOLD)
         title.to_edge(UP)
@@ -813,6 +848,8 @@ class JPOSScenes:
     @staticmethod
     def construct_packager_concept(scene):
         """Packagers in Action (30-35s)."""
+        add_watermark(scene)
+
         # Phase 1: Introduction
         title = Text("Packagers in Action", font_size=42, weight=BOLD, color=COLOR_PACKAGER)
         subtitle = Text("Watch how packagers transform ISOMsg fields into bytes", font_size=24)
@@ -1075,6 +1112,8 @@ class JPOSScenes:
     @staticmethod
     def construct_packager_definition(scene):
         """Defining a Packager (15-20s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Packager Configuration", font_size=40, weight=BOLD)
         title.to_edge(UP)
@@ -1132,6 +1171,8 @@ class JPOSScenes:
     @staticmethod
     def construct_composite_subfields(scene):
         """Composite subfields - DE 3 (25-35s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Composite Subfields: DE 3 Example", font_size=38, weight=BOLD)
         title.to_edge(UP)
@@ -1212,6 +1253,8 @@ class JPOSScenes:
     @staticmethod
     def construct_byte_packing(scene):
         """Byte-by-byte packing vignette (30-40s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Encoding in Action", font_size=40, weight=BOLD)
         title.to_edge(UP)
@@ -1281,6 +1324,8 @@ class JPOSScenes:
     @staticmethod
     def construct_channels(scene):
         """Channels (50-55s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("Channels: Wire Protocol Adapters", font_size=38, weight=BOLD)
         title.to_edge(UP)
@@ -1454,6 +1499,7 @@ class JPOSScenes:
     @staticmethod
     def construct_qmux(scene):
         """QMUX - Multiplexing (60-90s comprehensive)."""
+        add_watermark(scene)
 
         # Helper function to create message box with details
         def create_message_box(label, mti, de41, de11, color=GREEN):
@@ -2371,6 +2417,8 @@ class JPOSScenes:
     @staticmethod
     def construct_putting_together(scene):
         """Putting it together (10-15s)."""
+        add_watermark(scene)
+
         # Title
         title = Text("jPOS Stack in Action", font_size=40, weight=BOLD)
         title.to_edge(UP)
