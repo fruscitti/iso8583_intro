@@ -5,6 +5,9 @@ build/
 dist/
 wheels/
 *.egg-info
+SCENE_PROGRESS.md
+jpos.pdf
+FullPresentation_v1.mp4
 
 # Virtual environments
 .venv
